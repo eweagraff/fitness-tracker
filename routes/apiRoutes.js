@@ -1,75 +1,42 @@
 const router = require("express").Router();
-const db = require("../models");
+const db = require("../models/workout.js");
 
+//Get request for all workouts
 router.get("/api/workouts", (req, res) => {
-  db.Workout.find({})
-    .then((dbWorkout) => {
-      // console.log("ALL WORKOUTS");
-      // console.log(dbWorkout);
-      dbWorkout.forEach((workout) => {
-        var total = 0;
-        workout.exercises.forEach((e) => {
-          total += e.duration;
-        });
-        workout.totalDuration = total;
-      });
-
-      res.json(dbWorkout);
-    })
-    .catch((err) => {
-      res.json(err);
-    });
-});
-
-//find all workouts
-router.get("/api/workouts", (req, res) => {
-  db.Workout.find({}, (err, workouts) => {
-    if (err) {
-      console.log(err);
-    } else {
-      res.json(workouts);
-    }
-  });
-});
-
-router.put("/api/workouts/:id", (req, res) => {
-  db.Workout.findOneAndUpdate(
-    { _id: req.params.id },
-    {
-      $inc: { totalDuration: req.body.duration },
-      $push: { exercises: req.body },
-    },
-    { new: true }
-  )
+  db.find({})
     .then((dbWorkout) => {
       res.json(dbWorkout);
     })
     .catch((err) => {
-      res.json(err);
+      res.status(400).json(err);
     });
 });
 
-//find a workout in range
-//router.get("/api/workouts/range");
-// put is gonna use $push somewhere
-//add a new workout
-//router.post("/api/workouts", (req, res) => {
-//db.Workout.create({}).then, (err, newWorkout) => {
-// if (err) {
-// console.log(err);
-//  } else {
-// res.json(newWorkout);
-//}
-//});
-//});
-
-// get workouts in range
+//get workouts in range
 router.get("/api/workouts/range", (req, res) => {
-  db.Workout.find({})
+  db.find()
     .then((dbWorkout) => {
-      console.log("ALL WORKOUTS");
-      console.log(dbWorkout);
+      res.json(dbWorkout);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+});
 
+//Post a workout
+router.post("/api/workouts", ({ body }, res) => {
+  db.create(body)
+    .then((dbWorkout) => {
+      res.json(dbWorkout);
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
+//create and update a workout
+router.put("/api/workouts/:id", ({ body, params }, res) => {
+  db.findByIdAndUpdate(params.id, { $push: { exercises: body } })
+    .then((dbWorkout) => {
       res.json(dbWorkout);
     })
     .catch((err) => {
