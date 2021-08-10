@@ -44,4 +44,5 @@ router.put("/api/workouts/:id", ({ body, params }, res) => {
     });
 });
 
+//export the API routes
 module.exports = router;
